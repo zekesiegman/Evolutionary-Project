@@ -67,8 +67,8 @@ def evolve(sudoku, max_gen, pop_size, num_offspring, cx_rate):
             mutants = scramble_mutation(mating_pool, pos)
         elif rand==2:
             mutants = swap_mutation(mating_pool, pos)
-        else:
-            mutants = inverse_mutation(mating_pool, pos)
+#         else:
+#             mutants = inverse_mutation(mating_pool, pos)
         rand = random.randint(1, 1)
         if rand == 1:
             survivors = deterministic_survivor_selection(pop, mutants)
