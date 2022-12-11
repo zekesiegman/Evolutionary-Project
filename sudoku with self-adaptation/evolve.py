@@ -106,13 +106,15 @@ def run(num_run):
     for i in range(num_run):
         print()
         print('This is {} run'.format(i+1))
-        pop, fit = evolve(evil_sudoku, 4000, 50, 50, 0.5)
+        pop, fit = evolve(easy_sudoku, 4000, 50, 50, 0.5)
         best_inds.append(pop[-1])
         highest_fit.append(fit[-1])
     data = [[] for _ in range(num_run)]
     for i in range(num_run):
         data[i].append(best_inds[i])
         data[i].append(highest_fit[i])
+    high = pd.Series(highest_fit)
+    print(highest_fit, '\n', high.describe())
     header = ['Best Individual of Each Run', "Highest Fitness Value of Each Run"]
     return tabulate(data, header, tablefmt='grid', showindex='always')
 
