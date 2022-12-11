@@ -40,21 +40,25 @@ flatsudoku, pos = convert_sudoku(sudoku1)
 # sudoku = [[] for i in range(9)]
 # print(sudoku)
 
-def population(sudoku, pop_num, initial_mut_rate=0.5):
+def population(sudoku, pop_num):
     flatsudoku, pos = convert_sudoku(sudoku)
     total_pop = []
     for _ in range(pop_num):
         flat = deepcopy(flatsudoku)
         for i in range(len(flat)):
             rand_list = []
-            rand = random.sample(range(1, len(flatsudoku)+1), len(flatsudoku))
+            rand = random.sample(range(1, len(flat)+1), len(flat))
             for j in rand:
                 if j not in flat[i]:
                     rand_list.append(j)
             while 0 in flat[i]:
                 for k in rand_list:
                     flat[i][flat[i].index(0)]=k
-        mut_rates = [initial_mut_rate] * len(flat)
+        mut_rates = []
+        for i in range(len(flat)):
+            rand = random.random()
+            mut_rates.append(rand)
+        # mut_rates = [initial_mut_rate] * len(flat)
         flat += mut_rates
         total_pop.append(flat)
     return total_pop, pos
