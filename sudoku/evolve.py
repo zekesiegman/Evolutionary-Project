@@ -66,16 +66,16 @@ def evolve(sudoku, max_gen, pop_size, num_offspring, mut_rate, cx_rate):
             survivors = tournament_selection(mutants+pop, len(pop), 2)
         best_ind.append(survivors[0])
         fitnesses.append(fitness(survivors[0]))
-        last_best = fitnesses[gen-1] if gen>=1 else 0
-        current_best = fitnesses[gen]
-        if current_best==last_best:
-            num_unchanged+=1
-        else:
-            num_unchanged=0
-        if num_unchanged>200:
-            mut_rate = ((num_unchanged-200)//200)*0.1 + 0.05
-        else:
-            mut_rate=0.3
+#         last_best = fitnesses[gen-1] if gen>=1 else 0
+#         current_best = fitnesses[gen]
+#         if current_best==last_best:
+#             num_unchanged+=1
+#         else:
+#             num_unchanged=0
+#         if num_unchanged>200:
+#             mut_rate = ((num_unchanged-200)//200)*0.1 + 0.05
+#         else:
+#             mut_rate=0.05
         if (gen+1)%100==0:
             print('Generation {}'.format(gen+1), survivors[0])
             print('Fitness', fitness(survivors[0]))
@@ -87,91 +87,7 @@ def evolve(sudoku, max_gen, pop_size, num_offspring, mut_rate, cx_rate):
             break
         pop = survivors
     return best_ind, fitnesses
-    # return pop
 
-# best_ind, fitnesses = evolve(easy_sudoku, 10000, 100, 15, 0.05, 0.5)
-# for i in range(len(best_ind)):
-#     if (i + 1) % 100 == 0:
-#         print('Generation {}'.format(i + 1), best_ind[i])
-#         print('Fitness', fitness(best_ind[i]))
-#     if fitness(best_ind[i]) == 0:
-#         print('Generation {}'.format(i + 1), best_ind[i])
-#         print('Found it!')
-#         print(convert_back(best_ind[i]))
-#         break
-
-
-def evolve_in_island (num_island, sudoku, max_gen_separate, max_gen_together, pop_size, num_offspring, mut_rate, cx_rate):
-    pop_group = []
-    pop, pos = population(sudoku, 1)
-    for i in range(num_island):
-        pop = evolve(sudoku, max_gen_separate, pop_size, num_offspring, mut_rate, cx_rate)
-        pop_group.append(pop)
-        print('Group {} fitness value: '.format(i+1), fitness(pop[0]))
-    total_pop = []
-    for i in pop_group:
-        total_pop+=i
-    pop = total_pop
-    best_ind = []
-    fitnesses = []
-    num_unchanged = 0
-    for gen in range(max_gen_together):
-        mating_pool = tournament_selection(pop, num_island * num_offspring, 2)
-        recombinants = uniform_crossover(mating_pool, cx_rate)
-        rand = random.randint(1, 3)
-        if rand == 1:
-            recombinants = order_crossover(recombinants, pos)
-        elif rand == 2:
-            recombinants = PMX_crossover(recombinants, pos)
-        else:
-            recombinants = cycle_crossover(recombinants, pos)
-        rand = random.randint(1, 3)
-        if rand == 1:
-            mutants = scramble_mutation(recombinants, pos, mut_rate)
-        elif rand == 2:
-            mutants = swap_mutation(recombinants, pos, mut_rate)
-        else:
-            mutants = inverse_mutation(recombinants, pos, mut_rate)
-        rand = random.randint(1, 3)
-        if rand == 1:
-            survivors = survivor_selection(pop, mutants)
-        else:
-            survivors = tournament_selection(mutants + pop, len(pop), 2)
-        best_ind.append(survivors[0])
-        fitnesses.append(fitness(survivors[0]))
-        last_best = fitnesses[gen - 1] if gen >= 1 else 0
-        current_best = fitnesses[gen]
-        if current_best == last_best:
-            num_unchanged += 1
-        else:
-            num_unchanged = 0
-        if num_unchanged > 100:
-            mut_rate = ((num_unchanged - 200) // 200) * 0.1 + 0.05
-        else:
-            mut_rate = 0.05
-        if (gen+1)%100==0:
-            print('Generation {}'.format(gen+1), survivors[0])
-            print('Fitness', fitness(survivors[0]))
-            print('Average fitness', sum(get_all_fitness(survivors))/len(pop))
-        if fitness(survivors[0])==0:
-            print('Generation {}'.format(gen + 1), survivors[0])
-            print('Found it!')
-            print(convert_back(survivors[0]))
-            break
-        pop = survivors
-    return best_ind, fitnesses
-
-
-# best_ind, fitnesses = evolve_in_island(5, easy_sudoku, 1000, 50, 10, 0.5, 0.5)
-# for i in range(len(best_ind)):
-#     if (i + 1) % 100 == 0:
-#         print('Generation {}'.format(i + 1), best_ind[i])
-#         print('Fitness', fitness(best_ind[i]))
-#     if fitness(best_ind[i]) == 0:
-#         print('Generation {}'.format(i + 1), best_ind[i])
-#         print('Found it!')
-#         print(convert_back(best_ind[i]))
-#         break
 
 
 def run(num_run):
@@ -179,13 +95,15 @@ def run(num_run):
     highest_fit = []
     for i in range(num_run):
         print('This is the {} run'.format(i+1))
-        pop, fit = evolve(medium_sudoku, 30000, 100, 50, 0.05, 0.5)
+        pop, fit = evolve(easy_sudoku, 4000, 50, 50, 0.05, 0.1)
         best_inds.append(pop[-1])
         highest_fit.append(fit[-1])
     data = [[] for _ in range(num_run)]
     for i in range(num_run):
         data[i].append(best_inds[i][:])
         data[i].append(highest_fit[i])
+    high = pd.Series(highest_fit)
+    print(highest_fit, '\n', high.describe())
     header = ['Best Individual of Each Run', "Highest Fitness Value of Each Run"]
     return tabulate(data, header, tablefmt='grid', showindex='always')
 
